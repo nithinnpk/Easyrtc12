@@ -1,9 +1,13 @@
-<!DOCTYPE html>
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01//EN"
+    "http://www.w3.org/TR/html4/strict.dtd">
+
 <html>
     <head>
-        <title>Multiparty Chatroom</title>
-        <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
-        <meta name="viewport" content="width=device-width, minimum-scale=1, maximum-scale=1">
+        <meta http-equiv="Content-type" content="text/html; charset=utf-8">
+        <title>Layout Test</title>
+        <script src="https://swww.tokbox.com/v2/js/opentok.min.js"></script>
+        <script src="https://code.jquery.com/jquery-1.6.2.min.js"></script>
+        <script src="assets/js/opentok-layout.js"></script>
         <link href='https://fonts.googleapis.com/css?family=Source+Sans+Pro:400,300,600' rel='stylesheet' type='text/css'>
         <script type="text/javascript" src="assets/js/easyrtc.js"></script>
         <script type="text/javascript" src="assets/js/socket.io.js"></script>
@@ -12,111 +16,153 @@
         <link rel="stylesheet" type="text/css" href="assets/css/bootstrap.css">
         <link rel="stylesheet" type="text/css" href="assets/css/fontello.css">
         <script type="text/javascript" src="assets/js/demo_multiparty.js"></script>
-        <style>
-        body {
-        font-family: "Source Sans Pro", Helvetica, Arial, sans-serif;
-        font-size: 14px;
-        line-height: 1.42857143;
-        color: #333333;
-        background-color: #000000;
-        position: fixed;
-        height: 100%;
-        }
-        .chat-wraper{
-        background-color: #000000;
-        opacity: .8;
-        }
-        .easyrtcMirror {
-        -webkit-transform: scaleX(-1);
-        -moz-transform: scaleX(-1);
-        -ms-transform: scaleX(-1);
-        -o-transform: scaleX(-1);
-        transform: scaleX(-1);
-        }
-        video{
-          position: absolute;
-        }   
-        #fullpage{
-          position: absolute;
+        <style type="text/css" media="screen">
+            body {
+                background-color: #535353 !important;
+                font-family: Arial, Helvetica, sans-serif;
+            }
+            #layout {
+                position: absolute;
+                top: 0px;
+                left: 0px;
+                right: 230px;
+                bottom: 53px;
+                
+            }
 
-        }
-        .leftpart{
-          position: absolute;
-          top: 50px;
-        }
-        .header{
-          width: 70%;
-          height: 60px;
-          background-color: #636060;
-          position: fixed;
-        }
-        video{
-          width: 150px;
-          height: 130px;
-          position: relative;
-        }
-        #fullpage{
-          width: 100%;
-          height: 100%;
-        }
-        .btn-info {
-    color: #ffffff;
-    background-color: #00A7A9 !important;
-    border-color: #00A7A9 !important;
-}
+            video{
+                
+                display: inline-block;
+                background-color: #000000;
+                transition-property: all;
+                transition-duration: 0.5s;
+            }
+            #trash-videos{
+                position: fixed;
+                opacity: 0;
+                visibility: hidden;
+            }
+            .footer{
+              left: 0px;
+              right: 230px;
+              height: 50px;
+              position: fixed;
+              bottom: 0px;
+            }
+            .btn-round{
+                font-size: 20px !important;
+                height: 40px !important;
+                width: 40px !important;
+                margin-right: 4px !important;
+                margin-top: 4px !important;
+                background-color: #4584a0 !important;
+                border-color: #4584a0 !important;
+            }
+            .ctrl-holdrs{
+                width: 194px;
+                margin: 0 auto;
+                padding-left: 5px;
+                border-radius: 50px;
+                background-color: #282828;
+                height: 48px;
+            }
+            #chat-holder{
+                height:100%;
+                width: 230px;
+                position: fixed;
+                right: 0px; 
+                background-color: #fff;
+            }
+            .text-muted {
+              color: #E2E2E2;
+          }
+          a{
+            color: #083942 !important;
+          }
+          .close-icon{
+                font-size: 14px;
+                line-height: 13px;
+                float: left;
+                margin-top: 8px;
+                display: none;
+                margin-left: 2px;
+          }
+          .close-parent{
+                float: left;
+                margin-left: 4px;
+          }
+          .close-parent-mic{
+                float: left;
+                margin-left: 9px;
+          }
+          #mic-close-but{
+            margin-left: 2px;
+          }
+          .full-cover{
+            position: fixed;
+            z-index: 999999999;
+            background-color: #000000;
+            opacity: .7;
+            width: 100%;
+            height: 100%;
+          }
+          .inner-rect{
+            background-color: #555;
+            color: #ffffff;
+            position: fixed;
+            z-index: 99999999999;
+            border-radius: 3px;
+            padding: 15px;
+            width: 380px;
+            height: 212px;
+            top: 30%;
+            left: 38%;
+          }
+          .inner-rect button{
+                width: 70px;
+                margin-left: 138px;
+          }
         </style>
         <script>
-                var QueryString = function () {
-              // This function is anonymous, is executed immediately and 
-              // the return value is assigned to QueryString!
+        var QueryString = function () {
               var query_string = {};
               var query = window.location.search.substring(1);
               var vars = query.split("&");
               for (var i=0;i<vars.length;i++) {
                 var pair = vars[i].split("=");
-                    // If first entry with this name
                 if (typeof query_string[pair[0]] === "undefined") {
                   query_string[pair[0]] = decodeURIComponent(pair[1]);
-                    // If second entry with this name
-                } else if (typeof query_string[pair[0]] === "string") {
+                    } else if (typeof query_string[pair[0]] === "string") {
                   var arr = [ query_string[pair[0]],decodeURIComponent(pair[1]) ];
                   query_string[pair[0]] = arr;
-                    // If third or later entry with this name
-                } else {
+                    } else {
                   query_string[pair[0]].push(decodeURIComponent(pair[1]));
                 }
               } 
                 return query_string;
             }();
-            //alert(QueryString.a);
             var     roomname   =  QueryString.room;
-            
+            var     user_name  = QueryString.name;
+            var     myimage    = "images/avatar.png";
         </script>
     </head>
-
-    <body onload="appInit()">
-       <div class="header">
-         <div class="ctrl-holdrs">
-            <button class="btn btn-info btn-round" data-toggle="tooltip" data-placement="right" title="" data-original-title="Share Microphone"><i class="icon icon-mic"></i></button>
-            <button class="btn btn-info btn-round" data-toggle="tooltip" data-placement="right" title="" data-original-title="Share Webcam"><i class="icon icon-videocam"></i></button>
-            <button class="btn btn-info btn-round" data-toggle="tooltip" data-placement="right" title="" data-original-title="Share Screen"><i class="icon icon-monitor"></i></button>
-            <button class="btn btn-info btn-round" data-toggle="tooltip" data-placement="right" title="" style="line-height: 54px;" data-original-title="Share White Board"><i class="icon icon-easel"></i></button>
-            <button class="btn btn-info btn-round" data-toggle="tooltip" data-placement="right" title="" data-original-title="Share File"><i class="icon icon-attach"></i></button>
-          </div>
-       </div>
-       <div class="leftpart">
-           <div id="fullpage">
-                <video id="box0" class="transit boxCommon thumbCommon easyRTCMirror" muted="muted" volume="0" ></video>
-                <video id="box1" class="transit boxCommon thumbCommon"></video>
-                <video id="box2" class="transit boxCommon thumbCommon"></video>
-                <video id="box3" class="transit boxCommon thumbCommon"></video>
-                 <video id="box4" class="transit boxCommon thumbCommon"></video>
-                 <video id="box5" class="transit boxCommon thumbCommon"></video>
-                 <video id="box6" class="transit boxCommon thumbCommon"></video>
-                 <video id="box7" class="transit boxCommon thumbCommon"></video>
-             </div>
-        </div>
-             <div style="height:100%;width: 30%;position: fixed;right: 0px; background-color: #fff;" id="chat-holder">
+    <body>
+        <div id="layout"></div>
+    <div id="trash-videos">
+        <video id="box0" class="transit boxCommon thumbCommon easyRTCMirror" muted="muted" volume="0" ></video>
+        <video id="box1" class="transit boxCommon thumbCommon"></video>
+        <video id="box2" class="transit boxCommon thumbCommon"></video>
+        <video id="box3" class="transit boxCommon thumbCommon"></video>
+        <video id="box4" class="transit boxCommon thumbCommon"></video>
+        <video id="box5" class="transit boxCommon thumbCommon"></video>
+        <video id="box6" class="transit boxCommon thumbCommon"></video>
+        <video id="box7" class="transit boxCommon thumbCommon"></video>
+        <video id="box8" class="transit boxCommon thumbCommon"></video>
+        <video id="box9" class="transit boxCommon thumbCommon"></video>
+        <video id="box10" class="transit boxCommon thumbCommon"></video>
+        <video id="box11" class="transit boxCommon thumbCommon"></video>
+    </div>
+    <div id="chat-holder">
           <div id="rightpart" class="box no-margin chat-wraper" style="height:100% " >
                                 <div class="box-header" style="height:8%">
                                     <h3 class="box-title text-white"><i class="icon icon-chat"></i> Chat</h3>
@@ -124,50 +170,175 @@
                                     </div>
                                 </div>
                                 
-                                  <div id="chat-box" class="box-body chat" style="overflow: auto; width:100%">
-                                    <!-- chat item -->
-                                    <div class="item">
-                                        <img class="online" alt="user image" src="images/avatar.png">
-                                        <p class="message">
-                                            <a class="name" href="#">
-                                                <small class="text-muted pull-right"><i class="fa fa-clock-o"></i> 2:15</small>
-                                                Albert
-                                            </a>
-                                            is simply dummy text of the printing and typesetting industry. Lorem Ipsum has been the industry's standard dummy text ever since the 1500s, whe
-                                        </p>
-
-                                    </div><!-- /.item -->
-                                    <!-- chat item -->
-                                    <div class="item">
-                                        <img class="offline" alt="user image" src="images/avatar2.png">
-                                        <p class="message">
-                                            <a class="name" href="#">
-                                                <small class="text-muted pull-right"><i class="fa fa-clock-o"></i> 5:15</small>
-                                                jack
-                                            </a>
-                                            is simply dummy text of the printing and typesetting industry. Lorem Ipsum has been the industry's standard dummy text ever since the 1500s, whe
-                                        </p>
-                                    </div><!-- /.item -->
-                                    <!-- chat item -->
-                                    <div class="item">
-                                        <img class="offline" alt="user image" src="images/avatar3.png">
-                                        <p class="message">
-                                            <a class="name" href="#">
-                                                <small class="text-muted pull-right"><i class="fa fa-clock-o"></i> 5:30</small>
-                                                John
-                                            </a>
-                                            is simply dummy text of the printing and typesetting industry. Lorem Ipsum has been the industry's standard dummy text ever since the 1500s, whe
-                                        </p>
-                                    </div><!-- /.item -->
+                                  <div id="chat-box" class="box-body chat" style="overflow: auto; width:100%;overflow-x: hidden;">
+                                 
                             </div><!-- /.chat -->
                                 <div style="height:8%">
-                                    <input style="height: 100%;" placeholder="Type message..." class="form-control">
+                                    <input id="message_input" style="height: 100%;" placeholder="Type message..." class="form-control">
                             </div>
         
 
     </div>
+    </div>
+    <div class="footer">
+         <div class="ctrl-holdrs">
+            <button id="mic-close" class="btn btn-info btn-round" data-toggle="tooltip" data-placement="right" title="" data-original-title="Share Microphone"><i id="mic-but" class="icon icon-mic"></i><i id="mic-close-but" class="icon icon-cancel close-icon"></i></button>
+            <button  id="cam-close" class="btn btn-info btn-round" data-toggle="tooltip" data-placement="right" title="" data-original-title="Share Webcam"><i id="vid-cam" class="icon icon-videocam"></i><i   id="cam-close-but" class="icon icon-cancel close-icon"></i></button>
+            <button id="screen-share" class="btn btn-info btn-round" data-toggle="tooltip" data-placement="right" title="" data-original-title="Share Screen"><i class="icon icon-monitor" id="screen-but"></i><i   id="screen-close-but" class="icon icon-cancel close-icon"></i></button>
+            <button  id="chat-close" class="btn btn-info btn-round" data-toggle="tooltip" data-placement="right" title="" data-original-title="Share Webcam"><i id="chat-cam" class="icon icon-chat"></i><i   id="chat-close-but" class="icon icon-cancel close-icon"></i></button>
+            
+          </div>
+    </div>
+    <div id="enterName" class="full-cover"></div>
+    <div class="inner-rect">
+       <div class="form-group">
+           <label for="usr">Enter Your Room ID:</label>
+           <input type="text" class="form-control" id="room">
+        </div>
+        <div class="form-group">
+           <label for="usr">Enter Your Name:</label>
+            <input type="text" class="form-control" id="name">
+        </div>
 
-
-             
+        <button type="button" class="btn btn-primary" onclick="checkJoin()">Join</button>
+    </div>
+        
+    
     </body>
+
+    <script type="text/javascript" charset="utf-8">
+    
+    $("#message_input").keypress(function(event){
+        if(event.keyCode == 13)
+        {
+           
+            sendChatMsg();
+            
+        }
+    });
+    function sendChatMsg(){
+        var message             = $("#message_input").val();
+        if(message!='')
+        {
+            renderChat(user_name,message,myimage);
+            $("#message_input").val('');
+            var obj         = {};
+            obj['method']   = 'chat';
+            obj['message']  = message;
+            obj['name']     = user_name;
+            obj['image']    = myimage;
+            var msg         = JSON.stringify(obj);
+            sendText(msg);
+        }
+    }
+    function renderChat(name,message,image){
+
+        var chat_html  = '<div class="item">';
+        chat_html += '<img class="online" alt="user image" src="'+image+'">';
+        chat_html += '<p class="message">';
+        chat_html += '<a class="name" href="#">';
+        chat_html += '<small class="text-muted pull-right">';
+        chat_html += '<i class="fa fa-clock-o"></i> '+getTime()+'</small>';
+        chat_html += name+'</a>';
+        chat_html += message+'</p>';
+        chat_html += '</div>';
+        $('#chat-box').append(chat_html);
+        $("#chat-box").scrollTop($("#chat-box").prop("scrollHeight"));
+    }
+    function checkTime(i) {
+    if (i < 10) {
+        i = "0" + i;
+    }
+    return i;
+}
+
+function getTime() {
+    var today = new Date();
+    var h = today.getHours();
+    var m = today.getMinutes();
+    var s = today.getSeconds();
+    // add a zero in front of numbers<10
+    m = checkTime(m);
+    s = checkTime(s);
+    return h + ":" + m + ":" + s;
+   
+}
+
+
+    setTimeout(checkVideoInTrash,1000);
+    function checkVideoInTrash(){
+        
+        var d = document.getElementById("trash-videos");
+        var s = document.getElementById("layout");
+        var loc = window.location;
+        if (d)
+        {
+            for(var i = 0; i < d.childNodes.length; i++)
+            {
+                 var source = d.childNodes[i].src;
+                 if(source && source != loc){
+                     s.appendChild(d.childNodes[i]);
+                     
+                     layout();
+                 }
+                 
+            }
+            var vid = $("video");
+                    $.map( vid, function( n, i ) {
+                          n.play();
+                    });
+
+        }
+        if (s)
+        {
+            for(var i = 0; i < s.childNodes.length; i++)
+            {
+                 var source = s.childNodes[i].src;
+                 console.log(source + loc);
+                 if(source && source != loc){
+                     
+                 }else{
+                    d.appendChild(s.childNodes[i]);
+                     layout();
+                 }
+                 
+            }
+            
+        }
+        setTimeout(checkVideoInTrash,2000);
+    }
+        var layoutEl = document.getElementById("layout");
+        var layout = initLayoutContainer(layoutEl, {
+            animate: {
+                duration: 500,
+                easing: "swing"
+            },
+            bigFixedRatio: false
+        }).layout;
+
+        function addElement() {
+            var el = document.createElement("div");
+            
+            
+            layoutEl.appendChild(el);
+            el.innerHTML='<video></video>';
+            layout();
+        }
+        var resizeTimeout;
+        window.onresize = function() {
+          clearTimeout(resizeTimeout);
+          resizeTimeout = setTimeout(function () {
+            layout();
+          }, 20);
+        };
+
+        $("#layout>*").live("dblclick", function () {
+            if ($(this).hasClass("OT_big")) {
+                $(this).removeClass("OT_big");
+            } else {
+                $(this).addClass("OT_big");
+            }
+            layout();
+        });
+    </script>
 </html>

@@ -2,7 +2,7 @@
 
 var activeBox = -1;  // nothing selected
 var aspectRatio = 4/3;  // standard definition video aspect ratio
-var maxCALLERS = 7;
+var maxCALLERS = 11;
 var numVideoOBJS = maxCALLERS+1;
 var layout;
 var chatgap   =  .70;
@@ -472,28 +472,176 @@ function prepVideoBox(whichBox) {
         expandThumb(whichBox);
     };
 }
-function messageListener(easyrtcid, msgType, content) {
-    for(var i = 0; i < maxCALLERS; i++) {
-        if( easyrtc.getIthCaller(i) == easyrtcid) {
-            var startArea = document.getElementById(getIdOfBox(i+1));
-            var startX = parseInt(startArea.offsetLeft) + parseInt(startArea.offsetWidth)/2;
-            var startY = parseInt(startArea.offsetTop) + parseInt(startArea.offsetHeight)/2;
-            showMessage(startX, startY, content);
-        }
+function sendText(message) {
+        var stringToSend = message;
+        if( stringToSend && stringToSend != "") {
+            for(var i = 0; i < maxCALLERS; i++ ) {
+                var easyrtcid = easyrtc.getIthCaller(i);
+                if( easyrtcid && easyrtcid != "") {
+                    easyrtc.sendPeerMessage(easyrtcid, "im",  stringToSend);
+                }
+            }
+          }
+          return false;
     }
+function messageListener(easyrtcid, msgType, content) {
+       var obj    = JSON.parse(content);
+       var method = obj['method'];
+       if(method == 'chat'){
+         var message = obj['message'];
+         var name    = obj['name'];
+         var img     = obj['image'];
+         renderChat(name,message,img);
+       }
+    
+    }
+var camenable = 1;
+var micenable = 1;
+var screenenable = 0;
+var chatenable = 1;
+$('document').ready(function(){
+          $('#cam-close').click(function(){
+         
+            if(camenable == 1){
+                
+               camenable = 0;
+               $('#cam-close-but').show();
+               $('#vid-cam').addClass('close-parent');
+               easyrtc.enableCamera(false);
+               
+            }else{
+
+               camenable = 1;
+               $('#cam-close-but').hide();
+               $('#vid-cam').removeClass('close-parent');
+               easyrtc.enableCamera(true);
+               
+              
+            }
+            //alert(camenable);
+        });
+        $('#mic-close').click(function(){
+         
+            if(micenable == 1){
+                
+               micenable = 0;
+               $('#mic-close-but').show();
+               $('#mic-but').addClass('close-parent-mic');
+               easyrtc.enableAudio(false);
+               
+            }else{
+
+               micenable = 1;
+               $('#mic-close-but').hide();
+               $('#mic-but').removeClass('close-parent-mic');
+               easyrtc.enableAudio(true);
+               
+              
+            }
+            //alert(camenable);
+        });
+        $('#screen-share').click(function(){
+         
+            if(screenenable == 1){
+                
+               screenenable = 0;
+                $('#screen-close-but').hide();
+               $('#screen-but').removeClass('close-parent');
+        
+               
+            }else{
+
+               screenenable = 1;   
+               $('#screen-close-but').show();
+               $('#screen-but').addClass('close-parent');
+              
+              
+            }
+            //alert(camenable);
+        });
+
+        $('#chat-close').click(function(){
+         
+            if(chatenable == 1){
+                
+               chatenable = 0;
+               $('#chat-close-but').show();
+               $('#chat-cam').addClass('close-parent');
+               document.getElementById('layout').style.right = '0px';
+               $("#chat-holder").animate({width:'0px'}, 1000);
+               layout();
+               
+               
+            }else{
+
+               chatenable = 1;
+               $('#chat-close-but').hide();
+               $('#chat-cam').removeClass('close-parent');
+               document.getElementById('layout').style.right = '230px';
+               $("#chat-holder").animate({width:'230px'}, 1000);
+               layout();          
+            }
+            //alert(camenable);
+        });
+});
+
+
+function leaveRoom(roomname){
+    easyrtc.hangupAll();
+    easyrtc.leaveRoom(roomname,
+      function(roomName) {
+        easyrtc.disconnect();
+        easyrtc.clearMediaStream( document.getElementById('box0'));
+        setTimeout(function(){
+          appInit();
+        },5000);
+        
+           console.log("No longer in room " + roomName);
+      },
+      function(errorCode, errorText, roomName) {
+          console.log("had problems leaving " + roomName);
+
+      });
 }
-
-
+function checkJoin(){
+    roomname = $('#room').val();
+    user_name= $('#name').val();
+    var error = 0;
+    if(roomname.length == 0)
+        error += "Please enter room ID";
+    if(roomname.length == 0)
+        error += "Please enter your name";
+    if(error == 0){
+       appInit();
+    $('.full-cover').hide();
+    $('.inner-rect').hide();
+    }else{
+      alert(error);
+    }
+    
+}
 function appInit() {
 
     easyrtc.joinRoom(roomname, null , successFun, null);
     // Prep for the top-down layout manager
-    easyrtc.setScreenCapture();
+    //easyrtc.setScreenCapture();
+   
+    if(micenable == 0){
+       easyrtc.enableAudio(false);
+    }
+  
+    if(camenable == 0){
+       easyrtc.enableVideo(false);
+    }
+    if(screenenable == 1){
+       easyrtc.setScreenCapture();
+    }
     easyrtc.setRoomOccupantListener(callEverybodyElse);
     
-    easyrtc.easyApp("easyrtc.multiparty", "box0", ["box1", "box2", "box3", "box4","box5","box6","box7"], loginSuccess);
-
+    easyrtc.easyApp("easyrtc.multiparty", "box0", ["box1", "box2", "box3", "box4","box5","box6","box7", "box8","box9","box10","box11"], loginSuccess);
+    easyrtc.enableVideo(false);
     easyrtc.setPeerListener(messageListener);
+    
     easyrtc.setDisconnectListener( function() {
         easyrtc.showError("LOST-CONNECTION", "Lost connection to signaling server");
     });
